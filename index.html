@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>家計簿アプリ</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+        <h1>家計簿</h1>
+
+        <h2>検索</h2>
+        <input type="text" id="search" placeholder="カテゴリ名やコメントで検索">
+        <br>
+        <label>開始日: <input typut="date" id="start-date"></label>
+        <label>終了日: <input type="date" id="end-date"></label>
+        <button id="filter-btn">フィルター適用</button>
+        <button id="reset-btn">リセット</button>
+
+        <div class="summary">
+        <p>合計: <span id="total">0</span>円</p>
+        <p>月収 : <span id="income">0</span>円</p>
+        <p>残高: <span id="balance">0</span>円</p>
+        </div>
+
+        <form id="form">
+            <select id="item">
+                <option value="食品">食品</option>
+                <option value="雑貨">雑貨</option>
+                <option value="交通費">交通費</option>
+                <option value="家賃">家賃</option>
+                <option value="光熱費">光熱費</option>
+                <option value="お小遣い">お小遣い</option>
+                <option value="その他">その他</option>
+            </select>
+            <input type="number" id="amount" placeholder="金額">
+            <input type="date" id="date"><!--日付入力-->
+            <input type="text" id="comment" placeholder="コメント">
+            <button type="submit">追加</button>
+        </form>
+
+        <!--月収入力フォーム-->
+        <form id="income-form">
+            <input type="number" id="income-input" placeholder="月収を入力">
+            <button type="submit">追加</button>
+        </form>
+
+        <h2>
+            食品
+            <button onclick="toggleCategory('list-food')">表示/非表示</button>
+        </h2>
+        <ul id="list-food" style="display:none"></ul>
+
+        <h2>
+            雑貨
+            <button onclick="toggleCategory('list-zakka')">表示/非表示</button>
+        </h2>
+        <ul id="list-zakka" style="display:none"></ul>
+
+        <h2>
+            交通費
+            <button onclick="toggleCategory('list-transport')">表示/非表示</button>
+        </h2>
+        <ul id="list-transport" style="display:none"></ul>
+
+        <h2>
+            家賃
+            <button onclick="toggleCategory('list-rent')">表示/非表示</button>
+        </h2>
+        <ul id="list-rent" style="display:none"></ul>
+
+        <h2>
+            光熱費
+            <button onclick="toggleCategory('list-utility')">表示/非表示</button>
+        </h2>
+        <ul id="list-utility" style="display:none"></ul>
+
+        <h2>
+            お小遣い
+            <button onclick="toggleCategory('list-pocket')">表示/非表示</button>
+        </h2>
+        <ul id="list-pocket" style="display:none"></ul>
+
+        <h2>
+            その他
+            <button onclick="toggleCategory('list-other')">表示/非表示</button>
+        </h2>
+        <ul id="list-other" class="category-list"></ul>
+
+        <h2>月ごとの集計</h2>
+        <table id="monthly-summary-table" border="1">
+            <thead>
+                <tr>
+                    <th>月</th>
+                    <th>支出</th>
+                    <th>収入</th>
+                    <th>残高</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+        </table>
+
+        <h2>カテゴリごとの支出割合</h2>
+        <canvas id="categoryChart" width="400" height="400"></canvas>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

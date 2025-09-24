@@ -1,0 +1,143 @@
+body {
+    font-family: sans-serif;
+    background: #d7e6f2;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    text-shadow: 1px 1px 2px #aaa;
+}
+
+.hidden {
+  display: none;
+}
+
+ul{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;/* 2カラム */
+    gap: 15px;
+}
+
+/*　カードデザイン */
+li {
+    background: #9effba;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+li span {
+    font-size: 16px;
+    color: #333;
+}
+
+/* 削除ボタン */
+.delete-btn {
+    background: #f58686;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #ed0707;
+}
+
+/* レスポ */
+@media (max-width: 768px) {
+    ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 入力フォーム */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+form input, form select {
+    flex: 1;
+    min-width: 120px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: #f9f9f9;
+    transition: border 0.3s;
+}
+
+form input:focus, form select:focus {
+    border: 1px solid #78afee;
+    outline: none;
+}
+
+/* ボタン共通 */
+button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #62a3ed;
+    color: #fff;
+    transition: transform 0.2s, background 0.3s;
+}
+
+button:hover {
+    background: #357ab8;
+    transform: scale(1.05);
+}
+
+/* サマリ */
+.summary {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.summary p {
+    background: #f0f4ff;
+    padding: 10px 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    color: #333;
+}
+
+/* カテゴリ別色 */
+li[data-category="食品"] {background: #b2f2bb; }
+li[data-category="雑貨"] {background: #a5d8ff; }
+li[data-category="交通費"] { background: #a5d8ff; }
+li[data-category="家賃"] { background: #ffc9c9; }
+li[data-category="光熱費"] { background: #ffe066; }
+li[data-category="お小遣い"] { background: #d0bfff; }
+li[data-category="その他"] { background: #dee2e6; }
