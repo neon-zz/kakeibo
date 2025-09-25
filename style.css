@@ -133,6 +133,50 @@ button:hover {
     color: #333;
 }
 
+/* 検索フィルター */
+.filter-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f0f4ff;
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.filter-box input[type="text"]
+.filter-box input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+    background: #fff;
+    transition: border 0.3s;
+}
+
+,.filter-box input:focus {
+    border: 1px solid #78afee;
+    outline: none;
+}
+
+.filter-box button {
+    background: #62a3ed;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filter-box button:hover {
+    background: #357ab8;
+    transform: scale(1.05);
+}
+
 /* カテゴリ別色 */
 li[data-category="食品"] {background: #b2f2bb; }
 li[data-category="雑貨"] {background: #a5d8ff; }
