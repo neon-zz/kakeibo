@@ -298,7 +298,7 @@ categoryChart = new Chart(ctx, {
     datasets: [{
       data: data,
       backgroundColor: [
-        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
+        "#FF6384", "#36A2EB", "#f1f141ff", "#60f343ff",
         "#9966FF", "#FF9F40", "#C9CBCF"
       ]
     }]
