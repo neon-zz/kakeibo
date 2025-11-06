@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "../../../../kadai/javascript-basic-kadai"
+		},
+		{
+			"path": "../../../kadai_073"
+		},
+		{
+			"path": "../../../typing-game"
+		},
+		{
+			"path": "../../../tamesi00"
+		},
+		{
+			"path": "../../../rei_77"
+		},
+		{
+			"path": "../../../bedrock-samples-main"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "kakeibo-app"
+	}
+}
