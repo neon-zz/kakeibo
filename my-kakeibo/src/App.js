@@ -46,6 +46,7 @@ function App() {
 
   const [newCategory, setNewCategory] = useState(""); // 新しいカテゴリ名
   const [income, setIncome] = useState(0);//総収入
+  const [selectedMonth, setSelectedMonth] = useState("all");
 
   //==============================================
   //　ページ読み込み時にlocalStorage からデータ復元
@@ -67,7 +68,7 @@ function App() {
     localStorage.setItem("kakeibo-items", JSON.stringify(items));
     localStorage.setItem("kakeibo-categories", JSON.stringify(categories));
     localStorage.setItem("kakeibo-income", income);
-  }, [items, categories, income, monthlyIncome]);
+  }, [items, categories, income]);
 
   //=================================
   //　カテゴリ追加
@@ -119,17 +120,35 @@ function App() {
   const handleDelete = (id) => {
     setItems(items.filter((item) => item.id !== id));
   };
-  //==================
-  //　合計＆残高計算
-  //=================
-  const total = items.reduce((sum, i) => sum + i.amount, 0);
+
+  //============================
+  // 月ごとフィルター処理
+  //============================
+  const getMonthkey = (dateString) => {
+    if (!dateString) return "";
+    return dateString.slice(0, 7);// 例: "2025-11-06" → "2025-11"
+  };
+
+  // itemsから重複なしの月一覧を取得
+  const months = Array.from(
+    new Set(items.map((item) => getMonthkey(item.date)).filter(Boolean))
+  ).sort((a, b) => b.localeCompare(a));//新しい月を上に
+
+  //月でフィルタリング
+  const filteredItems =
+    selectedMonth === "all"
+      ? items
+      : items.filter((item) => getMonthkey(item.date) === selectedMonth);
+
+  //計算
+  const total = filteredItems.reduce((sum, i) => sum + i.amount, 0);
   const balance = income - total;
 
-  //=================-
-  // グラフ用データ
-  //=============
-  const categorySummary = categories.map(
-    (cat) => items.filter((i) => i.category === cat).reduce((sum, i) => sum + i.amount, 0)
+  //グラフデータ
+  const categorySummary = categories.map((cat) =>
+    filteredItems
+      .filter((i) => i.category === cat)
+      .reduce((sum, i) => sum + i.amount, 0)
   );
 
   const chartData = {
@@ -137,19 +156,18 @@ function App() {
     datasets: [
       {
         data: categorySummary,
-        backgroundColor: categories.map(cat => categoryColors[cat])
+        backgroundColor: categories.map((cat) => categoryColors[cat])
       }
     ]
   };
 
   //==============
   // 画面構成
-  //================
   return (
     <div className="container">
       <h1>家計簿</h1>
 
-      {/* --- 収入入力 --- */}
+      {/* --- 収入 --- */}
       <div className="filter-box">
         <label>収入 :</label>
         <input
@@ -161,7 +179,23 @@ function App() {
         <span>円</span>
       </div>
 
-      {/* --- カテゴリ追加フォーム --- */}
+      {/* 月選択ボックス */}
+      <div className="filter-box">
+        <label>表示する月 : </label>
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          <option value="all">全て</option>
+          {months.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* --- カテゴリ追加 --- */}
       <h2>カテゴリを追加</h2>
       <form onSubmit={handleAddCategory}>
         <input
@@ -173,7 +207,7 @@ function App() {
         <button type="submit">追加</button>
       </form>
 
-      {/* --- 支出追加フォーム --- */}
+      {/* --- 支出追加 --- */}
       <h2>支出を追加</h2>
       <form onSubmit={handleAddExpense}>
         <select name="category">
@@ -194,17 +228,27 @@ function App() {
       </div>
 
       {/* --- 支出一覧 --- */}
-      <h2>支出一覧</h2>
+      <h2>支出一覧{" "}
+        {selectedMonth !== "all" && (
+          <span style={{ fontSize: "0.8em", color: "#555" }}>
+            ({selectedMonth})
+          </span>
+        )}
+      </h2>
+
       {categories.map((cat) => (
         <div key={cat}>
           <h3>{cat}</h3>
           <ul>
-            {items
+            {filteredItems
               .filter((i) => i.category === cat)
               .map((item) => (
                 <li key={item.id}>
-                  {item.date} - {item.amount}円
-                  {item.comment && `(${item.comment})`}
+                  <div>
+                    <strong>{item.date}</strong>
+                    <span> - {item.amount}円</span>
+                    {item.comment && <em> ({item.comment}) </em>}
+                  </div>
                   <button onClick={() => handleDelete(item.id)}>削除</button>
                 </li>
               ))}
