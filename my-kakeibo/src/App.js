@@ -12,7 +12,6 @@ import {
 } from "chart.js";
 import "./App.css"; // CSS 読み込み
 
-// 構成要素登録
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 function App() {
@@ -26,14 +25,11 @@ function App() {
     return color;
   };
 
-  //===============
-  //　React 状態管理
-  //============---
+  //=============== 状態管理 ===============
   const [items, setItems] = useState([]); // 支出データ
   const [categories, setCategories] = useState([
     "食品", "雑貨", "交通費", "家賃", "光熱費", "お小遣い", "その他"
-  ]); // 初期カテゴリ
-
+  ]);
   const [categoryColors, setCategoryColors] = useState({
     "食品": "#FF6384",
     "雑貨": "#36A2EB",
@@ -42,37 +38,36 @@ function App() {
     "光熱費": "#c1a8f2ff",
     "お小遣い": "#FF9F40",
     "その他": "#C9CBCF"
-  });//カテゴリごとの色
-
-  const [newCategory, setNewCategory] = useState(""); // 新しいカテゴリ名
-  const [income, setIncome] = useState(0);//総収入
+  });
+  const [newCategory, setNewCategory] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("all");
+  const [incomes, setIncomes] = useState({}); // ← 修正: 複数月の収入を管理
 
-  //==============================================
-  //　ページ読み込み時にlocalStorage からデータ復元
-  // =============================================
+  //======================
+  // データ読み込み
+  //======================
   useEffect(() => {
-    const savedItems = JSON.parse(localStorage.getItem("kakeibo-items"));
-    const savedCategories = JSON.parse(localStorage.getItem("kakeibo-categories"));
-    const savedIncome = Number(localStorage.getItem("kakeibo-income")) || 0;
+    const savedItems = JSON.parse(localStorage.getItem("kakeibo-items")) || [];
+    const savedCategories = JSON.parse(localStorage.getItem("kakeibo-categories")) || [];
+    const savedIncomes = JSON.parse(localStorage.getItem("kakeibo-incomes")) || {};
 
-    if (savedItems) setItems(savedItems);
-    if (savedCategories) setCategories(savedCategories);
-    if (savedIncome) setIncome(savedIncome);
+    setItems(savedItems);
+    setCategories(savedCategories);
+    setIncomes(savedIncomes);
   }, []);
 
-  //========================================
-  // データ変更時に　localStorage へ保存
-  //======================================
+  //======================
+  // データ保存
+  //======================
   useEffect(() => {
     localStorage.setItem("kakeibo-items", JSON.stringify(items));
     localStorage.setItem("kakeibo-categories", JSON.stringify(categories));
-    localStorage.setItem("kakeibo-income", income);
-  }, [items, categories, income]);
+    localStorage.setItem("kakeibo-incomes", JSON.stringify(incomes));
+  }, [items, categories, incomes]);
 
-  //=================================
-  //　カテゴリ追加
-  //=============================
+  //=====================
+  // カテゴリ追加
+  //=====================
   const handleAddCategory = (e) => {
     e.preventDefault();
     const trimmed = newCategory.trim();
@@ -81,23 +76,23 @@ function App() {
       alert("このカテゴリはすでに存在します。");
       return;
     }
-    const newColor = getRandomColor();//新しい色の生成
+    const newColor = getRandomColor();
     setCategories([...categories, trimmed]);
     setCategoryColors({ ...categoryColors, [trimmed]: newColor });
-    setNewCategory(""); // 入力欄をクリア
+    setNewCategory("");
   };
 
-  //=============
+  //=====================
   // 支出追加
-  //===========
+  //=====================
   const handleAddExpense = (e) => {
     e.preventDefault();
     const category = e.target.category.value;
-    const amount = Number(e.target.amount.value);//金額
-    const date = e.target.date.value;//日付
-    const comment = e.target.comment.value;//コメント
+    const amount = Number(e.target.amount.value);
+    const date = e.target.date.value;
+    const comment = e.target.comment.value;
 
-    if (!category || !amount || amount <= 0) {
+    if (!category || !amount || amount <= 0 || !date) {
       alert("カテゴリと金額を正しく入力してください。");
       return;
     }
@@ -109,42 +104,47 @@ function App() {
       date,
       comment
     };
-
     setItems([...items, newItem]);
     e.target.reset();
   };
 
-  //==============
+  //=====================
   // 支出削除
-  //================
+  //=====================
   const handleDelete = (id) => {
     setItems(items.filter((item) => item.id !== id));
   };
 
-  //============================
+  //=====================
   // 月ごとフィルター処理
-  //============================
-  const getMonthkey = (dateString) => {
-    if (!dateString) return "";
-    return dateString.slice(0, 7);// 例: "2025-11-06" → "2025-11"
-  };
+  //=====================
+  const getMonthKey = (dateString) => (dateString ? dateString.slice(0, 7) : "");
 
-  // itemsから重複なしの月一覧を取得
   const months = Array.from(
-    new Set(items.map((item) => getMonthkey(item.date)).filter(Boolean))
-  ).sort((a, b) => b.localeCompare(a));//新しい月を上に
+    new Set(items.map((item) => getMonthKey(item.date)).filter(Boolean))
+  ).sort((a, b) => b.localeCompare(a));
 
-  //月でフィルタリング
   const filteredItems =
     selectedMonth === "all"
       ? items
-      : items.filter((item) => getMonthkey(item.date) === selectedMonth);
+      : items.filter((item) => getMonthKey(item.date) === selectedMonth);
 
-  //計算
+  //=====================
+  // 収入・残高計算
+  //=====================
+  const currentIncome = incomes[selectedMonth] || 0;
+
+  const handleIncomeChange = (e) => {
+    const value = Number(e.target.value) || 0;
+    setIncomes({ ...incomes, [selectedMonth]: value });
+  };
+
   const total = filteredItems.reduce((sum, i) => sum + i.amount, 0);
-  const balance = income - total;
+  const balance = selectedMonth === "all" ? 0 : currentIncome - total;
 
-  //グラフデータ
+  //=====================
+  // グラフ用データ
+  //=====================
   const categorySummary = categories.map((cat) =>
     filteredItems
       .filter((i) => i.category === cat)
@@ -161,25 +161,14 @@ function App() {
     ]
   };
 
-  //==============
+  //=====================
   // 画面構成
+  //=====================
   return (
     <div className="container">
       <h1>家計簿</h1>
 
-      {/* --- 収入 --- */}
-      <div className="filter-box">
-        <label>収入 :</label>
-        <input
-          type="number"
-          value={income}
-          onChange={(e) => setIncome(Number(e.target.value))}
-          placeholder="収入を入力"
-        />
-        <span>円</span>
-      </div>
-
-      {/* 月選択ボックス */}
+      {/* 月選択 */}
       <div className="filter-box">
         <label>表示する月 : </label>
         <select
@@ -195,7 +184,30 @@ function App() {
         </select>
       </div>
 
-      {/* --- カテゴリ追加 --- */}
+      {/* 月収入力 */}
+      <div className="filter-box">
+        <label>
+          {selectedMonth === "all" ? "全ての月収合計" : `${selectedMonth} の月収`}:
+        </label>
+        <input
+          type="number"
+          value={
+            selectedMonth === "all"
+              ? Object.values(incomes).reduce((sum, val) => sum + val, 0)
+              : currentIncome
+          }
+          onChange={(e) => {
+            if (selectedMonth === "all") return; // 全ては編集不可でもOK
+            handleIncomeChange(e);
+          }}
+          placeholder={selectedMonth === "all" ? "" : "収入を入力"}
+          disabled={selectedMonth === "all"} // 編集不可にする場合
+        />
+        <span>円</span>
+      </div>
+
+
+      {/* カテゴリ追加 */}
       <h2>カテゴリを追加</h2>
       <form onSubmit={handleAddCategory}>
         <input
@@ -207,12 +219,14 @@ function App() {
         <button type="submit">追加</button>
       </form>
 
-      {/* --- 支出追加 --- */}
+      {/* 支出追加 */}
       <h2>支出を追加</h2>
       <form onSubmit={handleAddExpense}>
         <select name="category">
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
         <input type="number" name="amount" placeholder="金額" />
@@ -221,16 +235,19 @@ function App() {
         <button type="submit">追加</button>
       </form>
 
-      {/* --- 合計表示 --- */}
-      <div className="summary">
-        <p>支出合計: {total}円</p>
-        <p>残高: {balance}円</p>
-      </div>
+      {/* 合計表示 */}
+      {selectedMonth !== "all" && (
+        <div className="summary">
+          <p>支出合計: {total}円</p>
+          <p>残高: {balance}円</p>
+        </div>
+      )}
 
-      {/* --- 支出一覧 --- */}
-      <h2>支出一覧{" "}
+      {/* 支出一覧 */}
+      <h2>
+        支出一覧{" "}
         {selectedMonth !== "all" && (
-          <span style={{ fontSize: "0.8em", color: "#555" }}>
+          <span style={{ fontSize: "0.8em", color: "#545454ff" }}>
             ({selectedMonth})
           </span>
         )}
@@ -247,7 +264,7 @@ function App() {
                   <div>
                     <strong>{item.date}</strong>
                     <span> - {item.amount}円</span>
-                    {item.comment && <em> ({item.comment}) </em>}
+                    {item.comment && <em> ({item.comment})</em>}
                   </div>
                   <button onClick={() => handleDelete(item.id)}>削除</button>
                 </li>
@@ -256,7 +273,7 @@ function App() {
         </div>
       ))}
 
-      {/* --- グラフ表示 --- */}
+      {/* グラフ表示 */}
       <h2>カテゴリごとの支出割合</h2>
       <Pie data={chartData} />
     </div>
